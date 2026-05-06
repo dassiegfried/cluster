@@ -1,0 +1,88 @@
+# Default values for hello-world.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+image:
+  repository: nginxdemos/hello
+  pullPolicy: Always
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "0.4"
+
+
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext:
+  runAsUser: 10001
+  runAsGroup: 10001
+  runAsNonRoot: true
+  sysctls:
+  - name: "net.ipv4.ip_unprivileged_port_start"
+    value: "0"
+
+securityContext:
+  runAsUser: 10001
+  runAsGroup: 10001
+  runAsNonRoot: true
+  # readOnlyRootFilesystem: true
+  capabilities:
+      drop:
+        - ALL
+  seccompProfile: 
+    type: RuntimeDefault
+  allowPrivilegeEscalation: false
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: true
+  className: traefik
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+  hosts:
+    - host: hello.cluster.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: hello-tls
+      hosts:
+        - hello.cluster.local
+
+resources:
+  limits:
+    cpu: 1
+    memory: 128Mi
+    ephemeral-storage: "128Mi"
+  requests:
+    cpu: 100m
+    memory: 128Mi
+    ephemeral-storage: "128Mi"
+
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 50
+  # targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
