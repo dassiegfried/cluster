@@ -1,0 +1,19 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: metallb
+spec:
+  chart:
+    spec:
+      chart: metallb
+      reconcileStrategy: ChartVersion
+      sourceRef:
+        kind: HelmRepository
+        name: metallb
+        namespace: flux-system
+  interval: 1m0s
+  releaseName: metallb
+  targetNamespace: metallb-system
+  values:
+    installCRDs: true
