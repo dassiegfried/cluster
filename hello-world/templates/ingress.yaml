@@ -13,7 +13,7 @@ spec:
     - match: Host(`hello.bieringer.dev`)
       kind: Rule
       services:
-        - name: hello-world
+        - name: {{ include "hello-world.fullname" . }}
           port: 80
   tls:
-    secretName: hello-world
+    secretName: {{ include "hello-world.fullname" . }}
