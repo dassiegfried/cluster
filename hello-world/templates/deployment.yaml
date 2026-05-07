@@ -20,6 +20,10 @@ spec:
       labels:
         {{- include "hello-world.selectorLabels" . | nindent 8 }}
     spec:
+      topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: node-role.kubernetes.io/worker
+        whenUnsatisfiable: DoNotSchedule
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
