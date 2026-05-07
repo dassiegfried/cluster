@@ -122,7 +122,7 @@ podDisruptionBudget:  # @schema additionalProperties: false
 
 ingressClass:  # @schema additionalProperties: false
   # -- Create a default IngressClass for Traefik
-  enabled: false
+  enabled: true
   isDefaultClass: true
   name: ""
 
@@ -170,24 +170,13 @@ gateway:
     web:
       # -- Port is the network port. Multiple listeners may use the same port, subject to the Listener compatibility rules.
       # The port must match a port declared in ports section.
-      port: 80
+      port: 8000
       # -- Optional hostname. See [Hostname](https://gateway-api.sigs.k8s.io/reference/spec/#gateway.networking.k8s.io/v1.Hostname)
       hostname: ""
       # Specify expected protocol on this listener. See [ProtocolType](https://gateway-api.sigs.k8s.io/reference/spec/#gateway.networking.k8s.io/v1.ProtocolType)
       protocol: HTTP
       # -- (object) Routes are restricted to namespace of the gateway [by default](https://gateway-api.sigs.k8s.io/reference/spec/#gateway.networking.k8s.io/v1.FromNamespaces
-      namespacePolicy:
-        from: All  # @schema type:[object, null]
-    websecure:         # HTTPS listener that matches entryPoint `websecure`
-      port: 443
-      protocol: HTTPS  # TLS terminates inside Traefik
-      namespacePolicy:
-        from: All
-      mode: Terminate
-      certificateRefs:    
-        - kind: Secret
-          name: local-selfsigned-tls  # the Secret we created before the installation
-          group: ""
+      namespacePolicy:  # @schema type:[object, null]
     # websecure listener is disabled by default because certificateRefs needs to be added,
     # or you may specify TLS protocol with Passthrough mode and add "--providers.kubernetesGateway.experimentalChannel=true" in additionalArguments section.
     # websecure:
@@ -219,7 +208,7 @@ api:  # @schema additionalProperties: false
   # -- Custom name for the dashboard (v3.7+).
   dashboardName: ""  # @schema type:[string, null]
   # -- Enable the insecure API (HTTP)
-  insecure: false  # @schema type:[boolean, null]
+  insecure:  # @schema type:[boolean, null]
   # -- Enable the debug API
   debug:  # @schema type:[boolean, null]
   # -- Configure API basePath
@@ -231,13 +220,13 @@ api:  # @schema additionalProperties: false
 ingressRoute:
   dashboard:
     # -- Create an IngressRoute for the dashboard
-    enabled: true
+    enabled: false
     # -- Additional ingressRoute annotations (e.g. for kubernetes.io/ingress.class)
     annotations: {}
     # -- Additional ingressRoute labels (e.g. for filtering IngressRoute by custom labels)
     labels: {}
     # -- The router match rule used for the dashboard ingressRoute
-    matchRule: Host(`dashboard.docker.localhost`)
+    matchRule: PathPrefix(`/dashboard`) || PathPrefix(`/api`)
     # -- The internal service used for the dashboard ingressRoute
     # @default -- api@internal
     services:
@@ -246,11 +235,9 @@ ingressRoute:
     # -- Specify the allowed entrypoints to use for the dashboard ingress route, (e.g. traefik, web, websecure).
     # By default, it's using traefik entrypoint, which is not exposed.
     # /!\ Do not expose your dashboard without any protection over the internet /!\
-    entryPoints:
-      - websecure
+    entryPoints: ["traefik"]
     # -- Additional ingressRoute middlewares (e.g. for authentication)
-    middlewares:
-      - name: dashboard-auth
+    middlewares: []
     # -- TLS options (e.g. secret containing certificate)
     tls: {}
   healthcheck:
@@ -334,7 +321,7 @@ providers:
   # @schema additionalProperties: false
   kubernetesIngress:
     # -- Load Kubernetes Ingress provider
-    enabled: false
+    enabled: true
     # -- Allows to reference ExternalName services in Ingress
     allowExternalNameServices: false
     # -- Allows to return 503 when there are no endpoints available
@@ -368,7 +355,7 @@ providers:
   # @schema additionalProperties: false
   kubernetesGateway:
     # -- Enable Traefik Gateway provider for Gateway API
-    enabled: true
+    enabled: false
     # -- Toggles support for the Experimental Channel resources (Gateway API release channels documentation).
     # This option currently enables support for TCPRoute and TLSRoute.
     experimentalChannel: false
@@ -577,7 +564,7 @@ logs:
 
   access:
     # -- To enable access logs
-    enabled: true
+    enabled: false
     # -- Set [access log format](https://doc.traefik.io/traefik/reference/install-configuration/observability/logs-and-accesslogs/#opt-accesslog-format)
     format:  # @schema enum:["common", "genericCLF", "json", null]; type:[string, null]; default: "common"
     # filePath: "/var/log/traefik/access.log
@@ -936,8 +923,7 @@ ports:
   web:
     ## -- Enable this entrypoint as a default entrypoint. When a service doesn't explicitly set an entrypoint it will only use this entrypoint.
     asDefault:  # @schema type: [boolean, null]; default: null
-    port: 80
-    nodePort: 30000
+    port: 8000
     # hostPort: 8000
     # containerPort: 8000
     expose:
@@ -947,18 +933,17 @@ ports:
     targetPort:  # @schema type:[string, integer, null]; minimum:0
     # The port protocol (TCP/UDP)
     protocol: TCP
+    # -- See [upstream documentation](https://kubernetes.io/docs/concepts/services-networking/service/#type-nodeport)
+    nodePort:  # @schema type:[integer, null]; minimum:0
     # -- See [upstream documentation](https://doc.traefik.io/traefik/reference/install-configuration/entrypoints/#allowacmebypass)
     allowACMEByPass: false
     http:
       redirections:
-        entryPoint:
-          to: websecure
-          scheme: https
-          permanent: true
         # -- Port Redirections
         # Added in 2.2, one can make permanent redirects via entrypoints.
         # Same sets of parameters: to, scheme, permanent and priority.
         # https://doc.traefik.io/traefik/reference/install-configuration/entrypoints/#configuration-example
+        entryPoint: {}
     forwardedHeaders:
       # -- Trust forwarded headers information (X-Forwarded-*).
       trustedIPs: []
@@ -996,7 +981,7 @@ ports:
   websecure:
     ## -- Enable this entrypoint as a default entrypoint. When a service doesn't explicitly set an entrypoint it will only use this entrypoint.
     # asDefault: true
-    port: 443
+    port: 8443
     hostPort:  # @schema type:[integer, null]; minimum:0
     containerPort:  # @schema type:[integer, null]; minimum:0
     expose:
@@ -1007,7 +992,7 @@ ports:
     ## -- The port protocol (TCP/UDP)
     protocol: TCP
     # -- See [upstream documentation](https://kubernetes.io/docs/concepts/services-networking/service/#type-nodeport)
-    nodePort: 30001  # @schema type:[integer, null]; minimum:0
+    nodePort:  # @schema type:[integer, null]; minimum:0
     # -- See [upstream documentation](https://kubernetes.io/docs/concepts/services-networking/service/#application-protocol)
     appProtocol:  # @schema type:[string, null]
     # -- See [upstream documentation](https://doc.traefik.io/traefik/reference/install-configuration/entrypoints/#allowacmebypass)
@@ -1254,22 +1239,8 @@ podSecurityContext:
 #
 # In some cases, it can avoid the need for additional, extended or adhoc deployments.
 # See #595 for more details and traefik/tests/values/extra.yaml for example.
-extraObjects:
-  - apiVersion: v1
-    kind: Secret
-    metadata:
-      name: dashboard-auth-secret
-    type: kubernetes.io/basic-auth
-    stringData:
-      username: admin
-      password: "cgi"      # Replace with an Actual Password
-  - apiVersion: traefik.io/v1alpha1
-    kind: Middleware
-    metadata:
-      name: dashboard-auth
-    spec:
-      basicAuth:
-        secret: dashboard-auth-secret
+extraObjects: []
+
 # -- This field overrides the default Release Namespace for Helm.
 # It will not affect optional CRDs such as `ServiceMonitor` and `PrometheusRules`
 namespaceOverride: ""
