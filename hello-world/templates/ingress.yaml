@@ -10,7 +10,7 @@ spec:
     - web
     - websecure
   routes:
-    - match: Host(`hello.docker.localhost`)
+    - match: Host(`hello.bieringer.dev`)
       kind: Rule
       services:
         - name: hello-world

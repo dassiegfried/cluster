@@ -34,13 +34,14 @@ ingress:
   enabled: true
   className: traefik
   annotations:
-    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.entrypoints: web, websecure
+    
   hosts:
-    - host: hello.cluster.local
+    - host: hello.bieringer.dev
   tls:
     - secretName: hello-tls
       hosts:
-        - hello.cluster.local
+        - hello.bieringer.dev
 
 resources:
   limits:
