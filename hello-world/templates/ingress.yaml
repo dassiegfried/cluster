@@ -8,10 +8,10 @@ spec:
   entryPoints:
     - websecure
   routes:
-    - match: Host(`hello.cluster.local`)
+    - match: Host(`hello.docker.localhost`)
       kind: Rule
       services:
         - name: hello-world
           port: 80
   tls:
-    secretName: hello-tls
+    secretName: hello-world
