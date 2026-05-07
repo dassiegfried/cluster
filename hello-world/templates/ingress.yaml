@@ -2,8 +2,9 @@
 apiVersion: traefik.io/v2
 kind: IngressRoute
 metadata:
-  name: hello-world
-  namespace: hello-world
+  name: {{ include "hello-world.fullname" . }}
+  labels:
+    {{- include "hello-world.labels" . | nindent 4 }}
 spec:
   entryPoints:
     - web
