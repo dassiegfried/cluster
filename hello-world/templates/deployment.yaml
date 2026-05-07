@@ -22,8 +22,8 @@ spec:
     spec:
       topologySpreadConstraints:
       - maxSkew: 1
-        topologyKey: node-role.kubernetes.io/worker
-        whenUnsatisfiable: DoNotSchedule
+        topologyKey: node
+        whenUnsatisfiable: ScheduleAnyway
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
