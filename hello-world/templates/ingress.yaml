@@ -2,8 +2,8 @@
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
-  name: secure-app
-  namespace: default
+  name: hello-world
+  namespace: hello-world
 spec:
   entryPoints:
     - websecure
@@ -11,10 +11,7 @@ spec:
     - match: Host(`hello.cluster.local`)
       kind: Rule
       services:
-        - name: hello-world/hello-world
+        - name: hello-world
           port: 80
   tls:
     secretName: hello-tls
-    options:
-      name: default
-      namespace: traefik
