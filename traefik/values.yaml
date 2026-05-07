@@ -208,7 +208,7 @@ api:  # @schema additionalProperties: false
   # -- Custom name for the dashboard (v3.7+).
   dashboardName: ""  # @schema type:[string, null]
   # -- Enable the insecure API (HTTP)
-  insecure:  # @schema type:[boolean, null]
+  insecure: true # @schema type:[boolean, null]
   # -- Enable the debug API
   debug:  # @schema type:[boolean, null]
   # -- Configure API basePath
@@ -925,7 +925,7 @@ ports:
     asDefault:  # @schema type: [boolean, null]; default: null
     port: 8000
     # hostPort: 8000
-    # containerPort: 8000
+    containerPort: 80
     expose:
       default: true
     exposedPort: 80
@@ -983,7 +983,7 @@ ports:
     # asDefault: true
     port: 8443
     hostPort:  # @schema type:[integer, null]; minimum:0
-    containerPort:  # @schema type:[integer, null]; minimum:0
+    containerPort: 443  # @schema type:[integer, null]; minimum:0
     expose:
       default: true
     exposedPort: 443

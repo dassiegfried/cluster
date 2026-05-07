@@ -1,5 +1,5 @@
 # tls-ingressroute.yaml
-apiVersion: traefik.io/v1alpha1
+apiVersion: traefik.io/v2
 kind: IngressRoute
 metadata:
   name: hello-world
