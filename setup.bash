@@ -21,6 +21,15 @@ kubectl get configmap kube-proxy -n kube-system -o yaml | \
 sed -e "s/strictARP: false/strictARP: true/" | \
 kubectl apply -f - -n kube-system
 
+#adding self-signed certs
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 \                                                                                                           ░▒▓ INT х  19m 20s ▓▒░
+  -keyout tls.key -out tls.crt \
+  -subj "/CN=*.bieringer.dev"
+
+kubectl --namespace hello-world create secret tls hello-world \                                                               ░▒▓ INT х  19m 20s  kubernetes-admin@cluster.local ○ ▓▒░
+  --cert=tls.crt --key=tls.key \
+  --namespace hello-world
+
 #install argocd
 kubectl create namespace argocd
 kubectl apply -n argocd --server-side --force-conflicts -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
