@@ -11,7 +11,7 @@ spec:
     - match: Host(`hello.cluster.local`)
       kind: Rule
       services:
-        - name: app-service
+        - name: hello-world
           port: 80
   tls:
     secretName: hello-tls
